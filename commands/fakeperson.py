@@ -1,12 +1,10 @@
 from ast import Str
 from random import choices
 import re
-from secrets import choice
 import shutil
-from discord import SlashOption
 from nextcord.ext import commands
 import nextcord
-from nextcord import Interaction
+from nextcord import Interaction, SlashOption
 import requests
 from typing import List
 from bs4 import BeautifulSoup
@@ -34,7 +32,6 @@ class User(commands.Cog):
         embed.add_field(name="Address", value=f'{user["location"]["street"]["number"]} {user["location"]["street"]["name"]}, {user["location"]["city"]}, {user["location"]["state"]}, {user["location"]["postcode"]}', inline=False)
         embed.set_thumbnail(url="https://patch.com/img/cdn20/users/22973312/20190703/111508/styles/patch_image/public/green-check-point-patch___03111500060.jpg?width=695&height=695&fit=crop&crop=faces&auto=format&q=100")
         await interaction.send(embed=embed)
-
 
     @nextcord.slash_command(name="pick", guild_ids=TESTING_GUILD_ID)
     async def choose_a_number(
