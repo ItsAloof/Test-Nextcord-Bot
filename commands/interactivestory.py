@@ -7,7 +7,6 @@ import nextcord
 from nextcord.ext import commands
 from nextcord import Interaction
 import requests
-from sympy import content
 from main import TESTING_GUILD_ID
 import re
 

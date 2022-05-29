@@ -1,11 +1,15 @@
 from ast import Str
+from random import choices
 import re
+from secrets import choice
 import shutil
+from discord import SlashOption
 from nextcord.ext import commands
 import nextcord
 from nextcord import Interaction
 import requests
 from typing import List
+from bs4 import BeautifulSoup
 
 from main import TESTING_GUILD_ID
 
@@ -31,25 +35,37 @@ class User(commands.Cog):
         embed.set_thumbnail(url="https://patch.com/img/cdn20/users/22973312/20190703/111508/styles/patch_image/public/green-check-point-patch___03111500060.jpg?width=695&height=695&fit=crop&crop=faces&auto=format&q=100")
         await interaction.send(embed=embed)
 
+
+    @nextcord.slash_command(name="pick", guild_ids=TESTING_GUILD_ID)
+    async def choose_a_number(
+        interaction: Interaction,
+        number: int = SlashOption(
+            name="picker",
+            description="The number you want",
+            choices={"one": 1, "two": 2, "three": 3},
+        ),
+    ):
+        await interaction.response.send_message(f"You chose {number}!")
+
+    @nextcord.slash_command(name="hi", guild_ids=TESTING_GUILD_ID)
+    async def hi(
+        interaction: Interaction,
+        member: nextcord.Member = SlashOption(name="user", description="User to say hi to"),
+    ):
+        await interaction.response.send_message(
+            f"{interaction.user} just said hi to {member.mention}"
+    )
     @nextcord.slash_command(name="fakeperson", description="Generate a fake person", guild_ids=TESTING_GUILD_ID)
-    async def fakeperson(self, interaction: Interaction):
-        r = requests.get('https://boredhumans.com/api_faces.php');
-        data = r._content.decode('utf-8')
-        pattern = "https:\/\/boredhumans\.b-cdn\.net\/faces\/[0-9]+\.jpg"
-        url = re.findall(pattern, data)
-        msg = "No faces found" if (url.count == 0) else url[0]
-        await interaction.send(msg)
-    
-    @nextcord.slash_command(name="fakeperson2", description="Generate a fake person that looks more realistic", guild_ids=TESTING_GUILD_ID)
-    async def fakepersontwo(self, interaction: Interaction):
-        r = requests.get('https://boredhumans.com/api_faces2.php');
-        data = r._content.decode('utf-8')
-        pattern = "https:\/\/boredhumans\.b-cdn\.net\/faces2\/[0-9]+\.jpg"
-        url = re.findall(pattern, data)
-        msg = "No faces found" if (url.count == 0) else url[0]
-        await interaction.send(msg)
-
-
+    async def fakeperson(self, interaction: Interaction, version: int = SlashOption(name="version", 
+    description="Version of the fake person AI", 
+    choices={"Version 1": 1, "Version 2": 2},
+    required=True,
+    verify=True)):
+        url = f'https://boredhumans.com/api_faces{"" if version == 1 else "2"}.php'
+        r = requests.get(url)
+        data = r.text
+        soup = BeautifulSoup(data, 'html.parser')
+        await interaction.send(soup.find('img')['src'])
    
 
 def setup(client, **kwargs):

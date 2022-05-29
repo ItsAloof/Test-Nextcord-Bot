@@ -1,11 +1,8 @@
-
-from debugpy import listen
 from nextcord.ext import commands
 import nextcord
-from nextcord import Interaction
+from nextcord import Interaction, Message
 import requests
-from zmq import Message
-import re
+
 
 from main import TESTING_GUILD_ID, client
 
