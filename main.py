@@ -10,7 +10,8 @@ load_dotenv(dotenv_path="./secrets.env")
 
 print("File name: {}".format(__name__))
 TESTING_GUILD_ID = [951325774139494450, 396329225206104064]  # Replace with your guild ID
-client = commands.Bot(command_prefix='t.', description='Test Bot', intents = nextcord.Intents.all())
+activity = nextcord.Activity(name="you sleep 👀", type=nextcord.ActivityType.watching)
+client = commands.Bot(command_prefix='t.', description='Test Bot', intents = nextcord.Intents.all(), activity=activity)
 admin_users = [192730242673016832]
 cmds = ['command', 'fakeperson', 'interactivestory']
 @client.event
