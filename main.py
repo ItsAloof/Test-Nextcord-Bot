@@ -17,7 +17,7 @@ admin_users = [192730242673016832]
 default_options = {'color': 0xd4af37, 'auth': admin_users}
 modules = {
 'games': [{'cmd': "interactivestory", 'options': default_options}, {'cmd': "fakeperson", 'options': default_options}, {'cmd': "command", 'options': default_options}], 
-'utils': [{'cmd': "movie", 'options': default_options}], 'admin': []}
+'utils': [{'cmd': "media", 'options': default_options}], 'admin': []}
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
