@@ -4,10 +4,12 @@ from nextcord.ext import commands
 import os
 import questionary
 
+from tmdb3 import tmdb_api
+
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path="./secrets.env")
-print("File name: {}".format(__name__))
+tmdb = tmdb_api(api_key=os.getenv("TMDB_API_KEY"))
 TESTING_GUILD_ID = [951325774139494450, 396329225206104064]  # Replace with your guild ID
 activity = nextcord.Activity(name="you sleep 👀", type=nextcord.ActivityType.watching)
 client = commands.Bot(command_prefix='t.', description='Test Bot', intents = nextcord.Intents.all(), activity=activity)
@@ -35,8 +37,6 @@ def load_modules():
 if __name__ == "__main__":
     
     for module in load_modules():
-        for command in module:
-            print(command)
-            # client.load_extension(f'commands.{command}', extras = command['options'])
-    client.load_extension('commands.movie')
+        for command in modules[module]:
+            client.load_extension(f"commands.{command['cmd']}", extras=command['options'])
     client.run(os.getenv(pickBot()))
