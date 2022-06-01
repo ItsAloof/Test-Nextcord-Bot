@@ -36,4 +36,4 @@ class tmdb_api():
 
     def getImage(self, image_path: str, size: str = "original"):
         return f"{self.base_image_url}{size}/{image_path}"
-    
+
