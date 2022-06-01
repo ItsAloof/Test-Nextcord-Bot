@@ -10,7 +10,7 @@ class tmdb_api():
     
 
     def searchMovie(self, query: str, year: int = None):
-        url = f"{self.search_base}/movie?api_key={self.api_key}&query={query.replace(' ', '%02')}{f'&{year}' if year == None else ''}"
+        url = f"{self.search_base}/movie?api_key={self.api_key}&query={query}{f'&{year}' if year == None else ''}"
         r = requests.get(url)
         return orjson.loads(r.content)
     
@@ -19,12 +19,12 @@ class tmdb_api():
         r = requests.get(url)
         return orjson.loads(r.content)
     
-    def searchTvShow(self, query: str, year: int = None):
-        url = f"{self.search_base}/tv?api_key={self.api_key}&query={query.replace(' ', '%s')}{f'&{year}' if year == None else ''}"
+    def searchTVShow(self, query: str, year: int = None):
+        url = f"{self.search_base}/tv?api_key={self.api_key}&query={query}{f'&{year}' if year == None else ''}"
         r = requests.get(url)
         return orjson.loads(r.content)
     
-    def getTvShow(self, tv_id: int):
+    def getTVShow(self, tv_id: int):
         url = f"{self.base_url}/tv/{tv_id}?api_key={self.api_key}"
         r = requests.get(url)
         return orjson.loads(r.content)
@@ -35,5 +35,7 @@ class tmdb_api():
         return orjson.loads(r.content)
 
     def getImage(self, image_path: str, size: str = "original"):
+        if image_path is None:
+            return "https://www.freeiconspng.com/uploads/no-image-icon-15.png"
         return f"{self.base_image_url}{size}/{image_path}"
 

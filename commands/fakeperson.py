@@ -6,10 +6,9 @@ from nextcord.ext import commands
 import nextcord
 from nextcord import Interaction, SlashOption
 import requests
-from typing import List
 from bs4 import BeautifulSoup
 
-from utils import Embed, Colors
+from utilities.embed_builder import Embed, Colors
 
 from main import TESTING_GUILD_ID
 
@@ -25,7 +24,7 @@ class User(commands.Cog):
         r = requests.get('https://randomuser.me/api/?nat=us')
         data = r.json()
         user = data['results'][0]
-        e = Embed.make_embed(self,  
+        e = Embed.make_embed(  
         title=user['name']['first'] + " " + user['name']['last'], 
         description="", color=Colors.purple, 
         image_url=user['picture']['large'], 

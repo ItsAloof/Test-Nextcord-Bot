@@ -8,6 +8,7 @@ from tmdb3 import tmdb_api
 
 from dotenv import load_dotenv
 
+
 load_dotenv(dotenv_path="./secrets.env")
 tmdb = tmdb_api(api_key=os.getenv("TMDB_API_KEY"))
 TESTING_GUILD_ID = [951325774139494450, 396329225206104064]  # Replace with your guild ID
