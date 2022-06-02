@@ -6,6 +6,7 @@ class tmdb_api():
         self.api_key = api_key
         self.base_url = "https://api.themoviedb.org/3"
         self.base_image_url = "https://image.tmdb.org/t/p/"
+        self.language = "&language=en-US"
         self.search_base = f"{self.base_url}/search"
     
 
@@ -31,6 +32,11 @@ class tmdb_api():
 
     def searchPeople(self, query: str):
         url = f"{self.search_base}/person?api_key={self.api_key}&query={query.replace(' ', '%s')}"
+        r = requests.get(url)
+        return orjson.loads(r.content)
+
+    def getPerson(self, person_id: int):
+        url = f"{self.base_url}/person/{person_id}?api_key={self.api_key}"
         r = requests.get(url)
         return orjson.loads(r.content)
 

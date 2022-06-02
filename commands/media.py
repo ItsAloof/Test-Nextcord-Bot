@@ -65,8 +65,16 @@ class Media(commands.Cog):
         color=Colors.light_green) 
         return embed
     
-    def create_person_embed(results: list, index: int): pass
-
+    def create_person_embed(results: list, index: int):
+        person = tmdb.getPerson(results[index]['id'])
+        pages = len(results)
+        fields=[{'name': "Born", 'value':Media.formatDate(date=person['birthday']), 'inline':True}, {'name':"Birthplace", 'value':person['place_of_birth'], 'inline':True}]
+        if person['deathday'] is not None:
+            fields.append({'name':"Died", 'value':Media.formatDate(date=person['deathday']), 'inline':True})
+        embed = Embed.make_embed(title=person['name'], description=person['biography'], image_url=tmdb.getImage(person['profile_path'], "original"), footer_text=f"Page {index+1}/{pages}", 
+        fields=fields, color=Colors.light_green)
+        
+        return embed
 
         
 
@@ -89,16 +97,20 @@ class Media(commands.Cog):
     verify=True), ephemeral: int = SlashOption(required=False, name="hidden", description="Set whether the response should be visible to only you or everyone", choices={"yes": 1, "no": 0,}, verify=True)):
         results = tmdb.searchTVShow(query, year)
         if(results['total_results'] == 0):
-            print(f"Query: {query}\nResults:\n{results}")
             await interaction.send(content="No results found", ephemeral=True)
             return
-        print(bool(ephemeral))
         embed = Media.create_tv_embed(results['results'], index=0)
         await interaction.send(embed=embed, view=ResultsView(results=results['results'], starting_page=0, interaction=interaction, mediaType=MediaType.tv), ephemeral=bool(ephemeral))
 
     @media.subcommand(name="people", description="Search for People in films and TV")
-    async def people(self, interaction: Interaction, name: str = SlashOption(required=True, name="name", description="Name of the person to search for", verify=True)):
-        await interaction.send("Searching for people...", ephemeral=True)
+    async def people(self, interaction: Interaction, name: str = SlashOption(required=True, name="name", description="Name of the person to search for", verify=True), 
+    ephemeral: int = SlashOption(required=False, name="hidden", description="Set whether the response should be visible to only you or everyone", choices={"yes": 1, "no": 0,}, verify=True)):
+        results = tmdb.searchPeople(name)
+        if(results['total_results'] == 0):
+            await interaction.send(content="No results found", ephemeral=True)
+            return
+        embed = Media.create_person_embed(results['results'], index=0)
+        await interaction.send(embed=embed, view=ResultsView(results=results['results'], starting_page=0, interaction=interaction, mediaType=MediaType.person), ephemeral=bool(ephemeral))
 
 class ResultsButton(nextcord.ui.Button["ResultsView"]):
     def __init__(self, results: list, current_page:int, next_button: bool, label: str, mediaType: MediaType):

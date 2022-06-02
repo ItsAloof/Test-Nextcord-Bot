@@ -2,26 +2,42 @@ from http import client
 import nextcord
 from nextcord.ext import commands
 import os
+import orjson
+from pymongo import MongoClient
 import questionary
 
 from tmdb3 import tmdb_api
 
 from dotenv import load_dotenv
 
+from utilities.mongodb import MongoDB
+
 
 load_dotenv(dotenv_path="./secrets.env")
+
 tmdb = tmdb_api(api_key=os.getenv("TMDB_API_KEY"))
+
+mongodb = MongoDB(connection_url=os.getenv("MONGODB_URI"))
+
 TESTING_GUILD_ID = [951325774139494450, 396329225206104064]  # Replace with your guild ID
-activity = nextcord.Activity(name="you sleep 👀", type=nextcord.ActivityType.watching)
-client = commands.Bot(command_prefix='t.', description='Test Bot', intents = nextcord.Intents.all(), activity=activity)
+# "you sleep 👀"
+client = commands.Bot(command_prefix='t.', description='Test Bot', intents = nextcord.Intents.all(), activity=nextcord.Activity(name=f"netflix and chill", type=nextcord.ActivityType.streaming, url="https://www.youtube.com/watch?v=0J2QdDbelmY&list=RD0J2QdDbelmY&start_radio=1"))
+
+
 admin_users = [192730242673016832]
 default_options = {'color': 0xd4af37, 'auth': admin_users}
 modules = {
 'games': [{'cmd': "interactivestory", 'options': default_options}, {'cmd': "fakeperson", 'options': default_options}, {'cmd': "command", 'options': default_options}], 
 'utils': [{'cmd': "media", 'options': default_options}], 'admin': []}
+
 @client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    print(f'We have logged in as {client.user}\nWatching over {len(client.users)} in {len(client.guilds)} guilds.')
+
+@client.event
+async def on_guild_join(guild):
+    print(f"Joined {guild.name}")
+    mongodb.insertGuild(guild_id=guild.id, data={'name': guild.name, 'owner_id': guild.owner_id, 'modules_enabled': modules})
 
 
 def pickBot():
@@ -34,6 +50,7 @@ def load_modules():
     utils = questionary.Choice(title="Utils", value="utils", checked=True)
     admin = questionary.Choice(title="Admin", value="admin", checked=False, disabled=True)
     return questionary.checkbox("Select which modules to load:", choices=[games, utils, admin]).ask()
+
 
 if __name__ == "__main__":
     
