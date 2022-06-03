@@ -1,4 +1,5 @@
 from http import client
+from unicodedata import name
 import nextcord
 from nextcord.ext import commands
 import os
@@ -11,6 +12,7 @@ from tmdb3 import tmdb_api
 from dotenv import load_dotenv
 
 from utilities.mongodb import MongoDB
+from utilities.userdata import UserData
 
 
 load_dotenv(dotenv_path="./secrets.env")
@@ -30,15 +32,6 @@ modules = {
 'games': [{'cmd': "interactivestory", 'options': default_options}, {'cmd': "fakeperson", 'options': default_options}, {'cmd': "command", 'options': default_options}], 
 'utils': [{'cmd': "media", 'options': default_options}], 'admin': []}
 
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}\nWatching over {len(client.users)} in {len(client.guilds)} guilds.')
-
-@client.event
-async def on_guild_join(guild):
-    print(f"Joined {guild.name}")
-    mongodb.insertGuild(guild_id=guild.id, data={'name': guild.name, 'owner_id': guild.owner_id, 'modules_enabled': modules})
-
 
 def pickBot():
     choice1 = questionary.Choice(title="Mako Test Bot", value="MAKO_TEST_BOT_TOKEN")
@@ -56,5 +49,6 @@ if __name__ == "__main__":
     
     for module in load_modules():
         for command in modules[module]:
-            client.load_extension(f"commands.{command['cmd']}", extras=command['options'])
+            client.load_extension(f"cogs.{command['cmd']}", extras=command['options'])
+    client.load_extension("cogs.data", extras={'mongodb': mongodb, 'modules': modules})
     client.run(os.getenv(pickBot()))
