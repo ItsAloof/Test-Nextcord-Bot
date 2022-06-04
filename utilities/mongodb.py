@@ -38,7 +38,7 @@ class MongoDB():
     def getUserCollection(self):
         return self.getUserDatabase()[self.user_collection]
 
-    async def insertGuild(self, guild_id: int, data: dict):
+    def insertGuild(self, guild_id: int, data: dict):
         if self.getGuildSettings(guild_id) is None:
             self.getGuildSettingsCollection().insert_one(data)
         else:

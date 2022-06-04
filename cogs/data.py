@@ -16,19 +16,18 @@ class DataCog(commands.Cog):
         self.mongodb = mongodb
         self.modules = modules
 
-    async def addMissingGuildSettings(self, guild: Guild):
+    def addMissingGuildSettings(self, guild: Guild):
         guild_data = self.mongodb.getGuildSettings(guild_id=guild.id)
         if guild_data is None:
             guildSettings = Settings(guild=guild, enabled_modules=Modules.setEnabledModules(), permissions=[Permissions().getDefaultPermissions()], members=guild.members)
-            await self.mongodb.insertGuild(guild_id=guild.id, data=guildSettings.getSettings())
+            self.mongodb.insertGuild(guild_id=guild.id, data=guildSettings.getSettings())
         
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'We have logged in as {self.client.user}\nWatching over {len(self.client.users)} in {len(self.client.guilds)} guilds.')
         await self.client.change_presence(activity=nextcord.Activity(name=f"all {len(self.client.users)} of you sleep 👀", type=nextcord.ActivityType.watching))
         for guild in self.client.guilds:
-            await self.addMissingGuildSettings(guild)
-        # await self.stressTest()
+            self.addMissingGuildSettings(guild)
 
     # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     # Used to stress test the bot with a bunch of randomly generated userdata

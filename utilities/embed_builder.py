@@ -1,7 +1,6 @@
 import random
 import nextcord
 import enum
-from utilities.MediaTypes import MediaType
 from main import tmdb
 
 class Colors(enum.Enum):
@@ -29,22 +28,25 @@ class Embed():
     def __init__(self):
         pass
 
-    def make_embed(title: str = "", author: str = None, description: str = "Not available", color: Colors = Colors.black, 
+    def make_embed(title: str = "", author: str = None, description: str = None, color: Colors = Colors.black, 
     image_url = None, thumbnail = None, 
     footer_text = None, footer_icon = None, 
     fields: list = None, 
     random_color: bool = False):
         if random_color:
             color = random.choice(list(Colors))
-        embed = nextcord.Embed(title=title, description=description, color=color.value)
+        if description is None:
+            embed = nextcord.Embed(title=title,  color=color.value)
+        else:
+            embed = nextcord.Embed(title=title, description=description, color=color.value)
         if fields is not None:
             for field in fields:
                 if field['name'] == None or field['name'] == "":
-                    name = "Not available"
+                    name = "N/A"
                 else:
                     name = field['name']
                 if field['value'] == None or field['value'] == "":
-                    value = "Not available"
+                    value = "N/A"
                 else:
                     value = field['value']
                 try:
