@@ -1,6 +1,8 @@
-from pymongo import MongoClient
+from pymongo import InsertOne, MongoClient, UpdateOne
 import pymongo
 import os
+
+from sklearn.utils import deprecated
 
 class MongoDB():
     guild_database = "guilds"
@@ -10,9 +12,14 @@ class MongoDB():
     def __init__(self, connection_url: str):
         self.client = MongoClient(connection_url)
     
-    def getClient(self):
-        return self.client
+    @property
+    def client(self):
+        return self._client
     
+    @client.setter
+    def client(self, client):
+        self._client = client
+
     def getDatabase(self, database_name: str):
         return self.client[database_name]
     
@@ -31,7 +38,7 @@ class MongoDB():
     def getUserCollection(self):
         return self.getUserDatabase()[self.user_collection]
 
-    def insertGuild(self, guild_id: int, data: dict):
+    async def insertGuild(self, guild_id: int, data: dict):
         if self.getGuildSettings(guild_id) is None:
             self.getGuildSettingsCollection().insert_one(data)
         else:
@@ -44,16 +51,27 @@ class MongoDB():
         settings = self.getGuildSettingsCollection().find_one({"guild_id": guild_id})
         return settings
     
+    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
     def insertUser(self, user_id: int, data: dict):
         if self.getUser(user_id) is None:
             self.getUserCollection().insert_one(data)
         else:
             self.updateUser(user_id, data)
+
+    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
+    def insertManyUsers(self, data: list):
+        documents = []
+        for user in data:
+            documents.append(UpdateOne({"user_id": user["user_id"]}, update={"$setOnInsert": { **user }}, upsert=True))
+            documents.append(UpdateOne({"user_id": user["user_id"]}, update={"$set": { 'mutual_guilds': user['mutual_guilds']}}, upsert=True))
+        self.getUserCollection().bulk_write(documents)
     
+    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
     def getUser(self, user_id: int):
         user = self.getUserCollection().find_one({"user_id": user_id})
         return user
 
+    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
     def updateUser(self, user_id: int, data: dict):
         self.getUserCollection().update_one({"user_id": user_id}, {"$set": data})
     

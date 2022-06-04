@@ -126,3 +126,5 @@ dmypy.json
 *.env
 
 example_movie.json
+
+StressTest/users.json

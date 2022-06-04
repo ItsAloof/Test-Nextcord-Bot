@@ -1,29 +1,57 @@
+import time
+from discord import Guild
 from nextcord.ext import commands
 import nextcord
 from nextcord import Interaction, Message
+import orjson
 from utilities.mongodb import MongoDB
 from utilities.userdata import UserData
+from utilities.settings import Settings, Permissions, Modules
+
+
 
 class DataCog(commands.Cog):
     def __init__(self, client: commands.Bot, mongodb: MongoDB, modules: list[dict]):
         self.client = client
         self.mongodb = mongodb
         self.modules = modules
+
+    async def addMissingGuildSettings(self, guild: Guild):
+        guild_data = self.mongodb.getGuildSettings(guild_id=guild.id)
+        if guild_data is None:
+            guildSettings = Settings(guild=guild, enabled_modules=Modules.setEnabledModules(), permissions=[Permissions().getDefaultPermissions()], members=guild.members)
+            await self.mongodb.insertGuild(guild_id=guild.id, data=guildSettings.getSettings())
         
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'We have logged in as {self.client.user}\nWatching over {len(self.client.users)} in {len(self.client.guilds)} guilds.')
+        await self.client.change_presence(activity=nextcord.Activity(name=f"all {len(self.client.users)} of you sleep 👀", type=nextcord.ActivityType.watching))
+        for guild in self.client.guilds:
+            await self.addMissingGuildSettings(guild)
+        # await self.stressTest()
+
+    # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    # Used to stress test the bot with a bunch of randomly generated userdata
+    async def stressTest(self):
+        print('Running stress test...')
+        start = time.time()
+        file = open('./StressTest/users.json', 'r')
+        file = orjson.loads(file.read())
+        users = []
+        for user in file:
+            data = UserData(user_id=user['user_id'], created_at=user['created_at'], username=user['username'], mutual_guilds=user['mutual_guilds'])
+            users.append(data.getUserData())
+        guildData = Settings(123456789, {'user_id': 951325774139494450, 'username': 'ItsAloof'}, ['moderation', 'fun', 'utilities'], Permissions().getDefaultPermissions(), users)
+        await self.mongodb.insertGuild(guild_id=123456789, data=guildData.getSettings())
+        end = time.time()
+        print('Stress test complete!\nTime taken:', end-start)
+    #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         print(f"Joined {guild.name}")
-        self.mongodb.insertGuild(guild_id=guild.id, data={'name': guild.name, 'owner_id': guild.owner_id, 'modules_enabled': self.modules})
-        for member in guild.members:
-            if member.bot:
-                continue
-
-            user = UserData(user_id=member.id, created_at=member.created_at, username=member.name, mutual_guilds=member.mutual_guilds)
-            self.mongodb.insertUser(user_id=member.id, data=user.getUserData())
+        guildSettings = Settings(guild=guild, enabled_modules=Modules.setEnabledModules(), permissions=[Permissions().getDefaultPermissions()], members=guild.members)
+        await self.mongodb.insertGuild(guild_id=guild.id, data=guildSettings.getSettings())
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -34,14 +62,11 @@ class DataCog(commands.Cog):
             for role in guild.roles:
                 if role.name == "Bot":
                     await member.add_roles(role, reason="Automated role assignment: Member was a bot")
-        userdata = UserData(user_id=member.id, created_at=member.created_at, username=member.name, mutual_guilds=member.mutual_guilds)
-        data = self.mongodb.getUser(user_id=member.id)
-        if data is None:
-            data = userdata.getUserData()
-            self.mongodb.insertUser(user_id=member.id, data=data)
-        else:
-            data['mutual_guilds'].append({'guild_id': guild.id, 'name': guild.name})
-            self.mongodb.updateUser(user_id=member.id, data=data)
+        guild = member.guild
+        guildSettings = self.mongodb.getGuildSettings(guild_id=guild.id)
+        guildSettings['member_data'].append(Settings.formatMemberData(member=member))
+        self.mongodb.updateGuild(guild_id=guild.id, data=guildSettings)
+
 
 def setup(client, **kwargs):
     print("Loaded command: {}".format(__name__))
