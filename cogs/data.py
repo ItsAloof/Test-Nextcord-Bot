@@ -1,6 +1,6 @@
 import time
 from discord import Guild
-from nextcord.ext import commands
+from nextcord.ext import commands, tasks
 import nextcord
 from nextcord import Interaction, Message
 import orjson
@@ -27,7 +27,7 @@ class DataCog(commands.Cog):
         print(f'We have logged in as {self.client.user}\nWatching over {len(self.client.users)} in {len(self.client.guilds)} guilds.')
         await self.client.change_presence(activity=nextcord.Activity(name=f"all {len(self.client.users)} of you sleep 👀", type=nextcord.ActivityType.watching))
         for guild in self.client.guilds:
-            self.addMissingGuildSettings(guild)
+            self.addMissingGuildSettings(guild) # Probably will remove in production since it is mainly for testing purposes
 
     # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     # Used to stress test the bot with a bunch of randomly generated userdata
@@ -50,7 +50,7 @@ class DataCog(commands.Cog):
     async def on_guild_join(self, guild):
         print(f"Joined {guild.name}")
         guildSettings = Settings(guild=guild, enabled_modules=Modules.setEnabledModules(), permissions=[Permissions().getDefaultPermissions()], members=guild.members)
-        await self.mongodb.insertGuild(guild_id=guild.id, data=guildSettings.getSettings())
+        self.mongodb.insertGuild(guild_id=guild.id, data=guildSettings.getSettings())
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -62,11 +62,12 @@ class DataCog(commands.Cog):
                 if role.name == "Bot":
                     await member.add_roles(role, reason="Automated role assignment: Member was a bot")
         guild = member.guild
-        guildSettings = self.mongodb.getGuildSettings(guild_id=guild.id)
-        guildSettings['member_data'].append(Settings.formatMemberData(member=member))
-        self.mongodb.updateGuild(guild_id=guild.id, data=guildSettings)
+        userdata = UserData(member, guild)
+        userdata.save()
 
 
-def setup(client, **kwargs):
+
+
+def setup(client: commands.Bot, **kwargs):
     print("Loaded command: {}".format(__name__))
     client.add_cog(DataCog(client, **kwargs))

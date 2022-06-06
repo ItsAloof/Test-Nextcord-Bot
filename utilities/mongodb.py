@@ -51,14 +51,12 @@ class MongoDB():
         settings = self.getGuildSettingsCollection().find_one({"guild_id": guild_id})
         return settings
     
-    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
     def insertUser(self, user_id: int, data: dict):
         if self.getUser(user_id) is None:
             self.getUserCollection().insert_one(data)
         else:
             self.updateUser(user_id, data)
 
-    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
     def insertManyUsers(self, data: list):
         documents = []
         for user in data:
@@ -66,12 +64,10 @@ class MongoDB():
             documents.append(UpdateOne({"user_id": user["user_id"]}, update={"$set": { 'mutual_guilds': user['mutual_guilds']}}, upsert=True))
         self.getUserCollection().bulk_write(documents)
     
-    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
     def getUser(self, user_id: int):
         user = self.getUserCollection().find_one({"user_id": user_id})
         return user
 
-    @deprecated("Need to rework so that eventually it may store premium users in a separate collection")
     def updateUser(self, user_id: int, data: dict):
         self.getUserCollection().update_one({"user_id": user_id}, {"$set": data})
     

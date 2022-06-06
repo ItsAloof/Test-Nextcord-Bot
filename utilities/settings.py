@@ -10,52 +10,6 @@ class Settings():
         self.permissions = permissions
         self.owner = {'user_id': guild.owner_id, 'username': guild.owner.name}
         self.members = members
-
-    def formatMembersData(self):
-        member_data = []
-        for member in self.members:
-            if member.bot:
-                continue
-            else:
-                guilds = []
-                for guild in member.mutual_guilds:
-                    guilds.append({'guild_id': guild.id, 'guild_name': guild.name})
-                member_data.append({
-                    "user_id": member.id,
-                    "username": member.name,
-                    "created_at": member.created_at,
-                    "economy": {
-                        "balance": 0,
-                    }
-                })
-        return member_data
-    
-    def formatMemberData(member: Member):
-        return {
-            "user_id": member.id,
-            "username": member.name,
-            "created_at": member.created_at,
-            "economy": {
-                "balance": 0,
-            }
-        }
-
-    # For stress testing and debugging
-    # def formatMemberData(members: dict):
-    #     member_data = []
-    #     if member.bot:
-    #         return
-    #     for member in members:
-    #         member_data.append({
-    #             "user_id": member['user_id'],
-    #             "username": member['username'],
-    #             "created_at": member['created_at'],
-    #             "mutual_guilds": member['mutual_guilds'],
-    #             "economy": {
-    #                 "balance": 0,
-    #             }
-    #         })
-    #     return member_data
     
     def getSettings(self):
         return {
@@ -63,8 +17,7 @@ class Settings():
             "guild_id": self.guild_id,
             "guild_name": self.guild_name,
             "owner": self.owner,
-            "permissions": self.permissions,
-            "member_data": self.formatMembersData()
+            "permissions": self.permissions
         }
 
 

@@ -3,8 +3,6 @@ from unicodedata import name
 import nextcord
 from nextcord.ext import commands
 import os
-import orjson
-from pymongo import MongoClient
 import questionary
 
 from tmdb3 import tmdb_api
@@ -12,7 +10,6 @@ from tmdb3 import tmdb_api
 from dotenv import load_dotenv
 
 from utilities.mongodb import MongoDB
-from utilities.userdata import UserData
 
 
 load_dotenv(dotenv_path="./secrets.env")
@@ -21,15 +18,15 @@ tmdb = tmdb_api(api_key=os.getenv("TMDB_API_KEY"))
 
 mongodb = MongoDB(connection_url=os.getenv("MONGODB_URI"))
 
-TESTING_GUILD_ID = [951325774139494450, 396329225206104064]  # Replace with your guild ID
+TESTING_GUILD_ID = [951325774139494450, 396329225206104064, 982358070896234588]  # Replace with your guild ID
 # "you sleep 👀"
-client = commands.Bot(command_prefix='t.', description='Test Bot', intents = nextcord.Intents.all(), activity=nextcord.Activity(name=f"netflix and chill", type=nextcord.ActivityType.streaming, url="https://www.youtube.com/watch?v=0J2QdDbelmY&list=RD0J2QdDbelmY&start_radio=1"))
+client = commands.Bot(command_prefix='mo.', description='Test Bot', intents = nextcord.Intents.all(), activity=nextcord.Activity(name=f"netflix and chill", type=nextcord.ActivityType.streaming, url="https://www.youtube.com/watch?v=0J2QdDbelmY&list=RD0J2QdDbelmY&start_radio=1"))
 
 
 admin_users = [192730242673016832]
 default_options = {'color': 0xd4af37, 'auth': admin_users}
 modules = {
-'games': [{'cmd': "interactivestory", 'options': default_options}, {'cmd': "fakeperson", 'options': default_options}, {'cmd': "command", 'options': default_options}], 
+'games': [{'cmd': "interactivestory", 'options': default_options}, {'cmd': "economy", 'options': default_options}, {'cmd': "fakeperson", 'options': default_options}, {'cmd': "command", 'options': default_options}], 
 'utils': [{'cmd': "media", 'options': default_options}], 'admin': []}
 
 
