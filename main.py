@@ -9,7 +9,7 @@ from tmdb3 import tmdb_api
 
 from dotenv import load_dotenv
 
-from utilities.mongodb import MongoDB
+from utils.mongodb import MongoDB
 
 
 load_dotenv(dotenv_path="./secrets.env")

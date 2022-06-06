@@ -1,5 +1,4 @@
 from discord import Guild, Member
-from psutil import users
 
 
 class Settings():

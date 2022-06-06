@@ -8,7 +8,7 @@ from nextcord import Interaction, SlashOption
 import requests
 from bs4 import BeautifulSoup
 
-from utilities.embed_builder import Embed, Colors
+from utils.embed_builder import Embed, Colors
 
 from main import TESTING_GUILD_ID
 

@@ -2,7 +2,6 @@ from pymongo import InsertOne, MongoClient, UpdateOne
 import pymongo
 import os
 
-from sklearn.utils import deprecated
 
 class MongoDB():
     guild_database = "guilds"

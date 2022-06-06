@@ -7,10 +7,10 @@ import nextcord
 from nextcord import Interaction
 from typing import List
 
-from utilities.embed_builder import Embed, Colors
+from utils.embed_builder import Embed, Colors
 
 from main import TESTING_GUILD_ID, tmdb
-from utilities.MediaTypes import MediaType
+from utils.MediaTypes import MediaType
 
 
 class Media(commands.Cog):

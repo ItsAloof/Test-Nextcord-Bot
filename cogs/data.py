@@ -4,9 +4,9 @@ from nextcord.ext import commands, tasks
 import nextcord
 from nextcord import Interaction, Message
 import orjson
-from utilities.mongodb import MongoDB
-from utilities.userdata import UserData
-from utilities.settings import Settings, Permissions, Modules
+from utils.mongodb import MongoDB
+from utils.userdata import UserData
+from utils.settings import Settings, Permissions, Modules
 
 
 
@@ -40,7 +40,7 @@ class DataCog(commands.Cog):
         for user in file:
             data = UserData(user_id=user['user_id'], created_at=user['created_at'], username=user['username'], mutual_guilds=user['mutual_guilds'])
             users.append(data.getUserData())
-        guildData = Settings(123456789, {'user_id': 951325774139494450, 'username': 'ItsAloof'}, ['moderation', 'fun', 'utilities'], Permissions().getDefaultPermissions(), users)
+        guildData = Settings(123456789, {'user_id': 951325774139494450, 'username': 'ItsAloof'}, ['moderation', 'fun', 'utils'], Permissions().getDefaultPermissions(), users)
         await self.mongodb.insertGuild(guild_id=123456789, data=guildData.getSettings())
         end = time.time()
         print('Stress test complete!\nTime taken:', end-start)

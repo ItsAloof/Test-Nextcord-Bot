@@ -88,7 +88,7 @@ class UserData():
         if self._data is None:
             self.createData()
         self._data['guild_data'][f'{self.guild.id}']['balance'] = balance
-        self.save()
+        self.save(update={f'guild_data.{self.guild.id}': self._data['guild_data'][f'{self.guild.id}']})
     
     def getBalance(self) -> int:
         """
@@ -98,17 +98,24 @@ class UserData():
             return None
         return self._data['guild_data'][f'{self.guild.id}']['balance']
     
-    def save(self) -> None:
+    def save(self, update: dict = None) -> None:
         """
         Save the user data given to the database
 
         Formatting is handled automatically within :class:`UserData` class
+
+        Parameters
+        ----------
+        update : :class:`dict`
+            What data should be updated within the userdata in the database
         """
         if self._data is None:
             self.createData()
             mongodb.insertUser(user_id=self._user.id, data=self._data)
-        else:
+        elif update is None:
             mongodb.updateUser(self._user.id, self._data)
+        else:
+            mongodb.updateUser(self._user.id, update)
 
         
     

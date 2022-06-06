@@ -1,8 +1,8 @@
 from discord import Interaction, Member, SlashOption, slash_command
 from nextcord.ext import commands
-from utilities.embed_builder import Colors, Embed
+from utils.embed_builder import Colors, Embed
 
-from utilities.userdata import UserData
+from utils.userdata import UserData
 
 from main import TESTING_GUILD_ID
 
