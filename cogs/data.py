@@ -7,14 +7,17 @@ import orjson
 from utils.mongodb import MongoDB
 from utils.userdata import UserData
 from utils.settings import Settings, Permissions, Modules
+from nextcord.ext import application_checks
 
 
 
 class DataCog(commands.Cog):
+    from main import client as bot
     def __init__(self, client: commands.Bot, mongodb: MongoDB, modules: list[dict]):
         self.client = client
         self.mongodb = mongodb
         self.modules = modules
+        bot = client
 
     def addMissingGuildSettings(self, guild: Guild):
         guild_data = self.mongodb.getGuildSettings(guild_id=guild.id)
@@ -28,6 +31,7 @@ class DataCog(commands.Cog):
         await self.client.change_presence(activity=nextcord.Activity(name=f"all {len(self.client.users)} of you sleep 👀", type=nextcord.ActivityType.watching))
         for guild in self.client.guilds:
             self.addMissingGuildSettings(guild) # Probably will remove in production since it is mainly for testing purposes
+        self.client.load_extension("cogs.errors")
 
     # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     # Used to stress test the bot with a bunch of randomly generated userdata
@@ -64,6 +68,7 @@ class DataCog(commands.Cog):
         guild = member.guild
         userdata = UserData(member, guild)
         userdata.save()
+
 
 
 

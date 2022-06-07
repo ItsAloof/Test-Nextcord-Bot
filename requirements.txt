@@ -1,8 +1,9 @@
 beautifulsoup4==4.11.1
-discord.py==1.7.3
-nextcord==2.0.0a10
-orjson==3.7.0
+isort==5.10.1
+nextcord==2.0.0b3
+orjson==3.7.2
 pymongo==4.1.1
+pyrsistent==0.18.0
 python-dotenv==0.20.0
 questionary==1.10.0
 requests==2.26.0
