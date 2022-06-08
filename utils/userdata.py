@@ -97,6 +97,48 @@ class UserData():
         if self._data is None:
             return None
         return self._data['guild_data'][f'{self.guild.id}']['balance']
+
+    def addMovie(self, movie_id: int, movie_name: str) -> None:
+        """
+        Add a movie to the user's movie list
+
+        Parameters
+        ----------
+        movie : :class:`str`
+            The movie to add
+        """
+        movie_data = {'movie_id': movie_id, 'movie_name': movie_name}
+        if self._data is None:
+            self.createData()
+        if self.getMovieList() is None:
+            self.setMovieList([movie_data])
+        else:
+            movie_list: list[dict] = self._data['movie_list']
+            movie_list.append(movie_data)
+            self._data['movie_list'] = movie_list
+            self.save(update={'movie_list': self.getMovieList()})
+
+    def setMovieList(self, movie_list: list[dict]) -> None:
+        """
+        Set the movie list for the user
+
+        Parameters
+        ----------
+        movie_list : :class:`list`
+            The list of movies to set
+        """
+        if self._data is None:
+            self.createData()
+        self._data['movie_list'] = movie_list
+        self.save(update={'movie_list': movie_list})
+    
+    def getMovieList(self) -> list:
+        """
+        Get the movie list for the user
+        """
+        if self._data is None:
+            return None
+        return self._data['movie_list']
     
     def save(self, update: dict = None) -> None:
         """

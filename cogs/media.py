@@ -11,6 +11,7 @@ from utils.embed_builder import Embed, Colors
 
 from main import TESTING_GUILD_ID, tmdb
 from utils.MediaTypes import MediaType
+from utils.userdata import UserData
 
 
 class Media(commands.Cog):
@@ -112,6 +113,45 @@ class Media(commands.Cog):
         embed = Media.create_person_embed(results['results'], index=0)
         await interaction.send(embed=embed, view=ResultsView(results=results['results'], starting_page=0, interaction=interaction, mediaType=MediaType.person), ephemeral=bool(ephemeral))
 
+    @media.subcommand(name="movielist", description="Get a list of movies you have saved")
+    async def movielist(self, interaction: Interaction):
+        userdata = UserData(interaction.user, interaction.guild)
+        movielist: list[int] = userdata.getMovieList()
+        if movielist is None or len(movielist) == 0:
+            await interaction.send(content="You have no movies saved", ephemeral=True)
+            return
+        else:
+            movie_list = "Your Movies:\n"
+            index = 1
+            for movie in movielist:
+                movie_list += f"{index}.) {movie['movie_name']}\n"
+                index += 1
+            await interaction.send(content=movie_list, ephemeral=True)
+        
+
+class SaveResultButton(nextcord.ui.Button["ResultsView"]):
+    def __init__(self, interaction: Interaction, mediaType: MediaType, movie_id: int, movie_name: str):
+        super().__init__(style=nextcord.ButtonStyle.success, label="Save", row=1)
+        self.interaction = interaction
+        self.mediaType = mediaType
+        self.color = Colors.light_green
+        self.movie_id = movie_id
+        self.movie_name = movie_name
+
+    async def callback(self, interaction: Interaction):
+        if(self.mediaType == MediaType.movie):
+            userdata = UserData(interaction.user, interaction.guild)
+            movies = userdata.getMovieList()
+            if movies is None:
+                userdata.addMovie(self.movie_id, self.movie_name)
+                await interaction.send(content="Movie added to your list", ephemeral=True)
+            for movie in movies:
+                if movie['movie_id'] == self.movie_id:
+                    await interaction.send(content="Movie already in your list", ephemeral=True)
+                    return
+            userdata.addMovie(self.movie_id, self.movie_name)
+            await interaction.send(content="Movie added to your list", ephemeral=True)
+    
 class ResultsButton(nextcord.ui.Button["ResultsView"]):
     def __init__(self, results: list, current_page:int, next_button: bool, label: str, mediaType: MediaType):
         super().__init__(style=nextcord.ButtonStyle.primary, label=label, row=1)
@@ -139,9 +179,9 @@ class ResultsButton(nextcord.ui.Button["ResultsView"]):
             else:
                 self.current_page -= 1
             embed = self.prev_page()
-
+        
         self.updateButtons(current_page=self.current_page)
-
+        self.updateSaveButton(movie_id=view.results[self.current_page]['id'], movie_name=view.results[self.current_page]['title'])
 
         await interaction.response.edit_message(embed=embed, view=view)
     
@@ -169,10 +209,18 @@ class ResultsButton(nextcord.ui.Button["ResultsView"]):
         else:
             return Media.create_media_embed(mediaType=self.mediaType, results=self.results, index=self.current_page)
 
+    def updateSaveButton(self, movie_id: int, movie_name: str):
+        for child in self.view.children:
+            if isinstance(child, SaveResultButton):
+                child.movie_id = movie_id
+                child.movie_name = movie_name
+                break
+    
     def updateButtons(self, current_page: int):
         for child in self.view.children:
-            child.current_page = current_page
-            child.disableButton()
+            if isinstance(child, ResultsButton):
+                child.current_page = current_page
+                child.disableButton()
     
 class ResultsView(nextcord.ui.View):
     children: List[ResultsButton]
@@ -181,6 +229,7 @@ class ResultsView(nextcord.ui.View):
         self.results = results
         self.starting_page = starting_page
         self.add_item(ResultsButton(results, starting_page, False, label="Prev", mediaType=mediaType))
+        self.add_item(SaveResultButton(interaction, mediaType, movie_id=results[starting_page]['id'], movie_name=results[starting_page]['title']))
         self.add_item(ResultsButton(results, starting_page, True, label="Next", mediaType=mediaType))
 def setup(client, **kwargs):
     print(f'Loaded command: {__name__}')
