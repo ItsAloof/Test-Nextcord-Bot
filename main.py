@@ -5,7 +5,6 @@ import discord
 import nextcord
 from nextcord.ext import commands
 import os
-from pyrsistent import discard
 import questionary
 
 from tmdb3 import tmdb_api
@@ -44,9 +43,10 @@ def load_modules():
     admin = questionary.Choice(title="Admin", value="admin", checked=False, disabled=True)
     return questionary.checkbox("Select which modules to load:", choices=[games, utils, admin]).ask()
 
-@client.event
-async def on_application_command_error(interaction: Interaction, error: Exception):
-    await interaction.send(f'{interaction.user.mention} you do not have permission to use {interaction.application_command.name}')
+# @client.event
+# async def on_application_command_error(interaction: Interaction, error: Exception):
+#     print(f"{interaction.user.name} has caused an error: {error}")
+#     await interaction.send(f'{interaction.user.mention} you do not have permission to use {interaction.application_command.name}')
 
 
 if __name__ == "__main__":
