@@ -28,7 +28,7 @@ client = commands.Bot(command_prefix='mo.', description='Test Bot', intents = ne
 admin_users = [192730242673016832]
 default_options = {'color': 0xd4af37, 'auth': admin_users}
 modules = {
-'games': [{'cmd': "interactivestory", 'options': default_options}, {'cmd': "economy", 'options': default_options}, {'cmd': "fakeperson", 'options': default_options}, {'cmd': "command", 'options': default_options}], 
+'games': [{'cmd': "interactivestory", 'options': default_options}, {'cmd': "games", 'options': default_options}, {'cmd': "economy", 'options': default_options}, {'cmd': "fakeperson", 'options': default_options}, {'cmd': "command", 'options': default_options}], 
 'utils': [{'cmd': "media", 'options': default_options}], 'admin': []}
 
 
